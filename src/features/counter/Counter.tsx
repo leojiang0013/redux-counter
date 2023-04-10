@@ -1,68 +1,56 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { increment, decrement, incrementAsync } from './counterSlice';
 
-import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import {
-  decrement,
-  increment,
-  incrementByAmount,
-  incrementAsync,
-  incrementIfOdd,
-  selectCount,
-} from './counterSlice';
-import styles from './Counter.module.css';
+export default function Counter() {
+    const counterSum = useAppSelector(state => state.counter.sum);
+    const personLength = useAppSelector(state => state.person.persons.length);
+    const dispatch = useAppDispatch();
+    const select = useRef<HTMLSelectElement>(null);
 
-export function Counter() {
-  const count = useAppSelector(selectCount);
-  const dispatch = useAppDispatch();
-  const [incrementAmount, setIncrementAmount] = useState('2');
+    const handleAdd = () => {
+        if (select.current?.value !== undefined) {
+            const value = parseInt(select.current?.value);
+            dispatch(increment(value));
+        }
+    }
 
-  const incrementValue = Number(incrementAmount) || 0;
+    const handleReduce = () => {
+        if (select.current?.value !== undefined) {
+            const value = parseInt(select.current?.value);
+            dispatch(decrement(value));
+        }
+    }
 
-  return (
-    <div>
-      <div className={styles.row}>
-        <button
-          className={styles.button}
-          aria-label="Decrement value"
-          onClick={() => dispatch(decrement())}
-        >
-          -
-        </button>
-        <span className={styles.value}>{count}</span>
-        <button
-          className={styles.button}
-          aria-label="Increment value"
-          onClick={() => dispatch(increment())}
-        >
-          +
-        </button>
-      </div>
-      <div className={styles.row}>
-        <input
-          className={styles.textbox}
-          aria-label="Set increment amount"
-          value={incrementAmount}
-          onChange={(e) => setIncrementAmount(e.target.value)}
-        />
-        <button
-          className={styles.button}
-          onClick={() => dispatch(incrementByAmount(incrementValue))}
-        >
-          Add Amount
-        </button>
-        <button
-          className={styles.asyncButton}
-          onClick={() => dispatch(incrementAsync(incrementValue))}
-        >
-          Add Async
-        </button>
-        <button
-          className={styles.button}
-          onClick={() => dispatch(incrementIfOdd(incrementValue))}
-        >
-          Add If Odd
-        </button>
-      </div>
-    </div>
-  );
+    const handleAddIfOdd = () => {
+        if (select.current?.value !== undefined && counterSum % 2 === 1) {
+            const value = parseInt(select.current?.value);
+            dispatch(increment(value));
+        }
+    }
+
+    const handleAsync = () => {
+        if (select.current?.value !== undefined) {
+            const value = parseInt(select.current?.value);
+            dispatch(incrementAsync(value));
+        }
+    }
+
+    return (
+        <div>
+            <h3>Person length is {personLength}</h3>
+            <h1>Result:{counterSum}</h1>
+            <select ref={select} defaultValue={1}>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+            <button onClick={handleAdd}>add</button>
+            <button onClick={handleReduce}>reduce</button>
+            <button onClick={handleAddIfOdd}>add if odd</button>
+            <button onClick={handleAsync}>add async</button>
+        </div>
+    )
 }
